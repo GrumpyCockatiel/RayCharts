@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+	xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="RayCharts.Views.Controls1Page"
+	xmlns:ray="clr-namespace:Raydreams.Xamarin.Controls;assembly=Raydreams.Xamarin.Controls"
+	BackgroundColor="{StaticResource RayGray}" Title="Charts">
+
+        <StackLayout Orientation="Vertical" Margin="20,20,20,20">
+        <!-- Place new controls here -->
+
+        <Label Text="Custom Font" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" FontFamily="tron" />
+
+        <Label Text="Basic Font" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" FontFamily="Roboto" />
+
+        <ray:ProgressGraph x:Name="dcuChartView" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand"
+            HorizontalAxis="True" VerticalAxis="False" LayoutGrid="False" Padding="0"
+            BarThickness="50.0" XLabelColor="White" AxisColor="White" Style="{StaticResource TestStyle1}"
+            XLabelFontScale="65.0" BackgroundColor="{StaticResource BasicGray}" >
+        </ray:ProgressGraph>
+
+        <ray:MultiLineGraph x:Name="lineChartView" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand"
+            LayoutGrid="False" BackgroundColor="{StaticResource DarkGray}" XLabelFontScale="80.0" YLabelFontScale="80.0"
+            Padding="0" XMin="0" YMin="0" XMax="7" YMax="10">
+		</ray:MultiLineGraph>
+
+    </StackLayout>
+
+</ContentPage>

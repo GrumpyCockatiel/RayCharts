@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+	xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+	xmlns:ray="clr-namespace:Raydreams.Xamarin.Controls;assembly=Raydreams.Xamarin.Controls"
+	x:Class="RayCharts.Views.Controls2Page" BackgroundColor="{StaticResource RayGray}" Title="Meters">
+
+	<StackLayout Orientation="Vertical" Margin="20,20,20,20">
+
+        <ray:ProgressMeter x:Name="meterChartView" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand"
+			PrimaryTextColor="White" SubTextColor="White" Style="{StaticResource TestStyle2}"
+			LayoutGrid="True" BackgroundColor="{StaticResource DarkGray}" 
+			Padding="0" Value1="33" Value2="66" ArcLineWidth="20" ArcColor1="{StaticResource RewardsColor}"
+			ArcColor2="{StaticResource BonusColor}" PrimeLabelAttributes="Bold"
+			PrimeLabelFontSize="100" SubLabelFontSize="50">
+			<x:Arguments>
+				<ray:MeterStyle>Pie</ray:MeterStyle>
+			</x:Arguments>
+		</ray:ProgressMeter>
+
+    </StackLayout>
+
+</ContentPage>

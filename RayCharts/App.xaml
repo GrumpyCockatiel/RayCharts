@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Application xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:d="http://xamarin.com/schemas/2014/forms/design" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" x:Class="RayCharts.App"
+			 xmlns:ray="clr-namespace:Raydreams.Xamarin.Controls;assembly=Raydreams.Xamarin.Controls">
+    <Application.Resources>
+
+        <ResourceDictionary x:Name="Default">
+            <Color x:Key="InactiveGray">#656F6F</Color>
+			<Color x:Key="LightGray">#4D5555</Color>
+			<Color x:Key="BasicGray">#303635</Color>
+			<Color x:Key="DarkGray">#242928</Color>
+			<Color x:Key="RayYellow">#F1ED78</Color>
+			<Color x:Key="RayLightBlue">#96F3E0</Color>
+			<Color x:Key="RayDarkBlue">#19A59D</Color>
+			<Color x:Key="RayGray">#3D4443</Color>
+
+            <!-- fill color of icons-->
+            <Color x:Key="Icons">#657070</Color>
+
+			 <!-- text colors-->
+            <Color x:Key="RewardsColor">#82C342</Color>
+			<Color x:Key="BonusColor">#007755</Color>
+			<Color x:Key="PrimaryText">#FFFFFF</Color>
+			<Color x:Key="TextGray">#AEBAB8</Color>
+
+            <Color x:Key="SecondaryText">#808a87</Color>
+            <Color x:Key="ErrorText">#DC722B</Color>
+
+            <Color x:Key="NavigationPrimary">#2196F3</Color>
+
+            <Style TargetType="NavigationPage">
+                <Setter Property="BarBackgroundColor" Value="{StaticResource DarkGray}" />
+                <Setter Property="BarTextColor" Value="{StaticResource PrimaryText}" />
+            </Style>
+
+			<Style x:Key="TestStyle1" TargetType="ray:ProgressGraph">
+				<Setter Property="XLabelFontFamily" Value="Roboto" />
+            </Style>
+
+			<Style x:Key="TestStyle2" TargetType="ray:ProgressMeter">
+				<Setter Property="LabelFontFamily" Value="Roboto" />
+            </Style>
+
+        </ResourceDictionary>
+
+    </Application.Resources>
+</Application>
