@@ -68,4 +68,7 @@ Global
 		{19483388-9D32-46C2-8E10-818B61880F95}.Release|iPhone.ActiveCfg = Release|Any CPU
 		{19483388-9D32-46C2-8E10-818B61880F95}.Release|iPhone.Build.0 = Release|Any CPU
 	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		version = 1.0.0
+	EndGlobalSection
 EndGlobal

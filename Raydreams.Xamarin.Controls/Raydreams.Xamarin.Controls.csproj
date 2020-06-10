@@ -4,14 +4,18 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <Authors>Tag Guillory</Authors>
     <Copyright>©  TAG Digital Studios</Copyright>
+    <Company>TAG Digital Studios</Company>
     <NeutralLanguage>en-US</NeutralLanguage>
     <Title>Raydreams Xamarin Controls</Title>
     <Description>A set of Xamarin Forms custom controls</Description>
     <ReleaseVersion>1.0.0</ReleaseVersion>
     <SynchReleaseVersion>false</SynchReleaseVersion>
-    <PackageProjectUrl>https://www.raydreams.com/</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/GrumpyCockatiel/RayCharts</PackageProjectUrl>
     <PackageId>raydreams.xamarin.controls</PackageId>
     <PackOnBuild>true</PackOnBuild>
+    <Owners>grumpycockatiel</Owners>
+    <RepositoryUrl>https://github.com/GrumpyCockatiel/RayCharts</RepositoryUrl>
+    <Summary>Just some custom Xamarin charting controls</Summary>
   </PropertyGroup>
 
   <ItemGroup>
