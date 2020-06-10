@@ -11,7 +11,7 @@
 
         <Label Text="Basic Font" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" FontFamily="Roboto" />
 
-        <ray:ProgressGraph x:Name="dcuChartView" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand"
+        <ray:ProgressGraph x:Name="myChartView" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand"
             HorizontalAxis="True" VerticalAxis="False" LayoutGrid="False" Padding="0"
             BarThickness="50.0" XLabelColor="White" AxisColor="White" Style="{StaticResource TestStyle1}"
             XLabelFontScale="65.0" BackgroundColor="{StaticResource BasicGray}" >

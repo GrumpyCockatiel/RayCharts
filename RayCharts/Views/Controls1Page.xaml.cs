@@ -29,17 +29,17 @@ namespace RayCharts.Views
 		{
 			base.OnAppearing();
 
-			this.dcuChartView.Entries = new List<GraphEntry>();
-			this.dcuChartView.Entries.Add( new GraphEntry( 8, 10 ) { Label = "jan", ThresholdColor = gray, ValueColor = yellow } );
-			this.dcuChartView.Entries.Add( new GraphEntry( 15, 9 ) { Label = "feb", ThresholdColor = rewards, ValueColor = bonus } );
-			this.dcuChartView.Entries.Add( new GraphEntry( 3, 11 ) { Label = "mar", ThresholdColor = gray, ValueColor = yellow } );
-			this.dcuChartView.Entries.Add( new GraphEntry( 10, 10 ) { Label = "apr", ThresholdColor = rewards, ValueColor = bonus } );
+			this.myChartView.Entries = new List<GraphEntry>();
+			this.myChartView.Entries.Add( new GraphEntry( 8, 10 ) { Label = "jan", ThresholdColor = gray, ValueColor = yellow } );
+			this.myChartView.Entries.Add( new GraphEntry( 15, 9 ) { Label = "feb", ThresholdColor = rewards, ValueColor = bonus } );
+			this.myChartView.Entries.Add( new GraphEntry( 3, 11 ) { Label = "mar", ThresholdColor = gray, ValueColor = yellow } );
+			this.myChartView.Entries.Add( new GraphEntry( 10, 10 ) { Label = "apr", ThresholdColor = rewards, ValueColor = bonus } );
 			//this.dcuChartView.Entries.Add( new GraphEntry() { Label = "Apr" } );
-			this.dcuChartView.Entries.Add( new GraphEntry( 0, 7 ) { Label = "may", ThresholdColor = gray, ValueColor = yellow } );
-			this.dcuChartView.Entries.Add( new GraphEntry( 17, 15 ) { Label = "jun", ThresholdColor = rewards, ValueColor = bonus } );
+			this.myChartView.Entries.Add( new GraphEntry( 0, 7 ) { Label = "may", ThresholdColor = gray, ValueColor = yellow } );
+			this.myChartView.Entries.Add( new GraphEntry( 17, 15 ) { Label = "jun", ThresholdColor = rewards, ValueColor = bonus } );
 
-			this.dcuChartView.AxisColor = Color.LightYellow;
-			this.dcuChartView.XLabelColor = Color.White;
+			this.myChartView.AxisColor = Color.LightYellow;
+			this.myChartView.XLabelColor = Color.White;
 
 			LineSeries l1 = new LineSeries()
 			{
@@ -72,9 +72,6 @@ namespace RayCharts.Views
 
 			this.lineChartView.XLabels = new List<LineLabel>( new[] { new LineLabel( 1, "jan" ), new LineLabel( 2, "feb" ), new LineLabel( 3, "mar" ), new LineLabel( 4, "apr" ), new LineLabel( 5, "may" ), new LineLabel( 6, "jun" ) } );
 			this.lineChartView.YLabels = new List<LineLabel>( new[] { new LineLabel( 0, "$0.00" ), new LineLabel( 10, "$10.00" ), new LineLabel( 5, "$5.00" ), new LineLabel( 2.5F, "$2.50" ), new LineLabel( 7.5F, "$7.50" ) } );
-
-			//this.meterChartView.PrimeLabel = "Limy Áhm 333";
-			//this.meterChartView.SubLabel = "subby label";
 		}
 	}
 }

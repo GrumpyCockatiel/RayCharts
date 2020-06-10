@@ -17,8 +17,8 @@
             <Color x:Key="Icons">#657070</Color>
 
 			 <!-- text colors-->
-            <Color x:Key="RewardsColor">#82C342</Color>
-			<Color x:Key="BonusColor">#007755</Color>
+            <Color x:Key="GreenColor1">#82C342</Color>
+			<Color x:Key="GreenColor2">#007755</Color>
 			<Color x:Key="PrimaryText">#FFFFFF</Color>
 			<Color x:Key="TextGray">#AEBAB8</Color>
 
