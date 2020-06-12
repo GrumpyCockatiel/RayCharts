@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <Authors>Tag Guillory</Authors>
+    <Authors>TAG Digital Studios</Authors>
     <Copyright>©  TAG Digital Studios</Copyright>
     <Company>TAG Digital Studios</Company>
     <NeutralLanguage>en-US</NeutralLanguage>
