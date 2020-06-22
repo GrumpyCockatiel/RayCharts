@@ -10,12 +10,24 @@
 			PrimaryTextColor="White" SubTextColor="White" Style="{StaticResource TestStyle2}"
 			LayoutGrid="True" BackgroundColor="{StaticResource DarkGray}" 
 			Padding="0" Value1="33" Value2="66" ArcLineWidth="20" ArcColor1="{StaticResource GreenColor1}"
-			ArcColor2="{StaticResource GreenColor2}" PrimeLabelAttributes="Bold"
-			PrimeLabelFontSize="100" SubLabelFontSize="50">
+			ArcColor2="{StaticResource GreenColor2}" PrimeLabelAttributes="Bold">
 			<x:Arguments>
 				<ray:MeterStyle>Pie</ray:MeterStyle>
 			</x:Arguments>
 		</ray:ProgressMeter>
+
+		<ray:ProgressMeter x:Name="pieChartView" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand"
+			PrimaryTextColor="White" SubTextColor="White" Style="{StaticResource TestStyle2}"
+			LayoutGrid="False" BackgroundColor="{StaticResource DarkGray}" 
+			Padding="0" Value1="166" Value2="100" ArcColor1="{StaticResource GreenColor1}"
+			ArcColor2="{StaticResource GreenColor2}" PrimeLabelAttributes="Bold" PrimeLabelFontScale="100.0"
+			PrimeLabel="888" SubLabel="somé thing" ArcLineThickness="1">
+			<x:Arguments>
+				<ray:MeterStyle>Progress</ray:MeterStyle>
+			</x:Arguments>
+		</ray:ProgressMeter>
+
+		<!--1ÁyE-->
 
     </StackLayout>
 

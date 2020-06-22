@@ -92,7 +92,7 @@ namespace Raydreams.Xamarin.Controls
 			get { return this._xFontScale; }
 			set
 			{
-				this._xFontScale = (value > 0.0F && value < 100.0F) ? value : 100.0F;
+				this._xFontScale = (value > 0.0F && value <= 100.0F) ? value : 100.0F;
 			}
 		}
 
@@ -452,7 +452,7 @@ namespace Raydreams.Xamarin.Controls
 						minScale = scale;
 				}
 
-				// reduce the font size
+				// reduce the font size using optional scaling
 				fontSize = textPaint.TextSize * minScale * (this.XLabelFontScale / 100.0F);
 				textPaint.TextSize = fontSize;
 

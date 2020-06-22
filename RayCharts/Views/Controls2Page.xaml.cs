@@ -17,8 +17,14 @@ namespace RayCharts.Views
 		{
 			base.OnAppearing();
 
-			this.meterChartView.PrimeLabel = "Limy Áhm 333";
-			this.meterChartView.SubLabel = "subby label";
+			//this.pieChartView.ArcLineWidth = Convert.ToSingle( this.pieChartView.Width / 15.0F );
+
+			//this.meterChartView.PrimeLabel = "Limy Áhm 333";
+			//this.meterChartView.SubLabel = "subby label";
+
+			//this.pieChartView.PrimeLabel = "1ÁyE";
+			//this.pieChartView.PrimeLabelFontScale = 50.0F;
+			int x = 5;
 		}
 	}
 }

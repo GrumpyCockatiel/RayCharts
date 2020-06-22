@@ -36,14 +36,16 @@ namespace Raydreams.Xamarin.Controls
 		private static SKColor _test = new SKColor( 255, 0, 0 );
 		private static SKColor _orange = new SKColor( 255, 165, 0 );
 
-		/// <summary>default font sizes</summary>
-		private double _primeFontSize = 10.0;
-		private double _secFontSize = 10.0;
+		/// <summary>default font scales are 100% max</summary>
+		private float _primeFontScale = 100.0F;
+		private float _subFontScale = 100.0F;
 
-        #region [ Constructors ]
+		private float _arcLineThickness = 1.0F;
 
-        /// <summary>Default constructor</summary>
-        public ProgressMeter() : this( MeterStyle.Progress )
+		#region [ Constructors ]
+
+		/// <summary>Default constructor</summary>
+		public ProgressMeter() : this( MeterStyle.Progress )
 		{
 		}
 
@@ -56,8 +58,6 @@ namespace Raydreams.Xamarin.Controls
 			this.MasterCanvas = new SKCanvasView();
 			this.Content = this.MasterCanvas;
 			this.MasterCanvas.PaintSurface += OnCanvasViewPaintSurface;
-
-			//this.InitializeComponent();
 
 			this.PrimeLabel = String.Empty;
 			this.SubLabel = String.Empty;
@@ -73,8 +73,20 @@ namespace Raydreams.Xamarin.Controls
 		/// <summary>What style to draw the control in</summary>
 		public MeterStyle Mode { get; set; }
 
-		/// <summary>The width of the arc stroke</summary>
-		public float ArcLineWidth { get; set; }
+		/// <summary>Percent adjustment of the actual arc line thickness</summary>
+		public float ArcLineThickness
+		{
+			get { return this._arcLineThickness; }
+			set
+			{
+				if (value < 0.02F)
+					this._arcLineThickness = 0.02F;
+				else if (value > 10.0F)
+					this._arcLineThickness = 10.0F;
+				else
+					this._arcLineThickness = value;
+			}
+		}
 
 		/// <summary>Whether to Draw the layout helper grid</summary>
 		public bool LayoutGrid { get; set; }
@@ -155,55 +167,41 @@ namespace Raydreams.Xamarin.Controls
 		/// <summary>What font attributes to use for the primary label</summary>
 		public FontAttributes SubLabelAttributes { get; set; }
 
-		/// <summary></summary>
-		public double PrimeLabelFontSize
-        {
-            get { return this._primeFontSize; }
-            set
-            {
-                this._primeFontSize = (value < 1.0) ? 10.0 : value;
-            }
-        }
-
-        /// <summary></summary>
-        public double SubLabelFontSize
+		/// <summary>Scales the label front from a % of 100</summary>
+		public float PrimeLabelFontScale
 		{
-			get { return this._secFontSize; }
+			get { return this._primeFontScale; }
 			set
 			{
-				this._secFontSize = (value < 1.0) ? 10.0 : value;
+				this._primeFontScale = ( value > 0.0F && value <= 100.0F ) ? value : 100.0F;
 			}
 		}
 
-		///// <summary>Scales the label front from a % of 100</summary>
-		//public float PrimeLabelFontScale
-		//{
-		//	get { return this._primeFontScale; }
-		//	set
-		//	{
-		//		this._primeFontScale = (value > 0.0F && value < 100.0F) ? value : 100.0F;
-		//	}
-		//}
-
-		///// <summary>Scales the label front from a % of 100</summary>
-		//public float SubLabelFontScale
-		//{
-		//	get { return this._secFontScale; }
-		//	set
-		//	{
-		//		this._secFontScale = (value > 0.0F && value < 100.0F) ? value : 100.0F;
-		//	}
-		//}
+		/// <summary>Scales the label front from a % of 100</summary>
+		public float SubLabelFontScale
+		{
+			get { return this._subFontScale; }
+			set
+			{
+				this._subFontScale = ( value > 0.0F && value <= 100.0F ) ? value : 100.0F;
+			}
+		}
 
 		#endregion [ Properties ]
 
 		#region [ Calculated Properties ]
 
+		/// <summary>The width of the arc stroke</summary>
+		public float ArcLineWidth { get; set; }
+
 		/// <summary>The top left of the control drawing area</summary>
 		protected SKPoint TopLeft { get; set; }
 
-		/// <summary>The square in which the circle is inscribed centered</summary>
-		protected SKRect GraphFrame { get; set; }
+		/// <summary>The outter square in which the circle is inscribed centered</summary>
+		protected SKRect OuterRect { get; set; }
+
+		/// <summary>The inner square inscribed inside the ring</summary>
+		protected SKRect InscribedRect { get; set; }
 
 		/// <summary>The calculated max width of the prime label area</summary>
 		protected float MaxPrimeLabelWidth { get; set; }
@@ -231,6 +229,10 @@ namespace Raydreams.Xamarin.Controls
 		#region [ Static Properties ]
 
 		/// <summary></summary>
+		//public static readonly BindableProperty ArcLineWidthProperty = BindableProperty.Create(
+		//	nameof( ArcLineWidth ), typeof( float ), typeof( ProgressMeter ), 1.0F, BindingMode.TwoWay, null, OnArcLineWidthPropertyChanged );
+
+		/// <summary></summary>
 		public static readonly BindableProperty DisabledColorProperty = BindableProperty.Create(
 			nameof( DisabledColor ), typeof( Color ), typeof( ProgressMeter ), Color.LightGray, BindingMode.TwoWay, null, OnDisabledColorPropertyChanged );
 
@@ -250,11 +252,11 @@ namespace Raydreams.Xamarin.Controls
 		public static readonly BindableProperty SecondaryTextColorProperty = BindableProperty.Create(
 			nameof( SubTextColor ), typeof( Color ), typeof( ProgressMeter ), Color.Black, BindingMode.TwoWay, null, OnSecondaryTextColorChanged );
 
-		/// <summary></summary>
+		/// <summary>the angles</summary>
 		public static readonly BindableProperty Value1Property = BindableProperty.Create(
 			nameof( Value1 ), typeof( float ), typeof( ProgressMeter ), 0.0F, BindingMode.TwoWay, null, OnValue1Changed );
 
-		/// <summary></summary>
+		/// <summary>2nd angle</summary>
 		public static readonly BindableProperty Value2Property = BindableProperty.Create(
 			nameof( Value2 ), typeof( float ), typeof( ProgressMeter ), 360.0F, BindingMode.TwoWay, null, OnValue2Changed );
 
@@ -275,11 +277,18 @@ namespace Raydreams.Xamarin.Controls
 		#region [ Property Handlers ]
 
 		/// <summary></summary>
+		//public static void OnArcLineWidthPropertyChanged( BindableObject sender, object oldValue, object newValue )
+		//{
+		//	var control = sender as ProgressMeter;
+		//	control.ArcLineWidth = Convert.ToSingle( newValue );
+		//	control.MasterCanvas.InvalidateSurface();
+		//}
+
+		/// <summary></summary>
 		public static void OnSubLabelChanged( BindableObject sender, object oldValue, object newValue )
 		{
 			var control = sender as ProgressMeter;
 			control.SubLabel = newValue.ToString();
-			//control.meter.InvalidateSurface();
 			control.MasterCanvas.InvalidateSurface();
 		}
 
@@ -288,7 +297,6 @@ namespace Raydreams.Xamarin.Controls
 		{
 			var control = sender as ProgressMeter;
 			control.PrimeLabel = newValue.ToString();
-			//control.meter.InvalidateSurface();
 			control.MasterCanvas.InvalidateSurface();
 		}
 
@@ -297,7 +305,6 @@ namespace Raydreams.Xamarin.Controls
 		{
 			var control = sender as ProgressMeter;
 			control.DisabledColor = (Color)newValue;
-			//control.meter.InvalidateSurface();
 			control.MasterCanvas.InvalidateSurface();
 		}
 
@@ -306,7 +313,6 @@ namespace Raydreams.Xamarin.Controls
 		{
 			var control = sender as ProgressMeter;
 			control.ArcColor1 = (Color)newValue;
-			//control.meter.InvalidateSurface();
 			control.MasterCanvas.InvalidateSurface();
 		}
 
@@ -324,7 +330,6 @@ namespace Raydreams.Xamarin.Controls
 		{
 			var control = sender as ProgressMeter;
 			control.PrimaryTextColor = (Color)newValue;
-			//control.meter.InvalidateSurface();
 			control.MasterCanvas.InvalidateSurface();
 		}
 
@@ -333,7 +338,6 @@ namespace Raydreams.Xamarin.Controls
 		{
 			var control = sender as ProgressMeter;
 			control.SubTextColor = (Color)newValue;
-			//control.meter.InvalidateSurface();
 			control.MasterCanvas.InvalidateSurface();
 		}
 
@@ -342,7 +346,6 @@ namespace Raydreams.Xamarin.Controls
 		{
 			var control = sender as ProgressMeter;
 			control.Value1 = Convert.ToSingle( newValue );
-			//control.meter.InvalidateSurface();
 			control.MasterCanvas.InvalidateSurface();
 		}
 
@@ -351,7 +354,6 @@ namespace Raydreams.Xamarin.Controls
 		{
 			var control = sender as ProgressMeter;
 			control.Value2 = Convert.ToSingle( newValue );
-			//control.meter.InvalidateSurface();
 			control.MasterCanvas.InvalidateSurface();
 		}
 
@@ -360,7 +362,6 @@ namespace Raydreams.Xamarin.Controls
 		{
 			var control = sender as ProgressMeter;
 			control.LabelFontFamily = newValue.ToString();
-			//control.meter.InvalidateSurface();
 			control.MasterCanvas.InvalidateSurface();
 		}
 
@@ -387,7 +388,7 @@ namespace Raydreams.Xamarin.Controls
 			if ( this.Mode == MeterStyle.Progress )
 				this.PaintProgress( info, canvas );
 			else
-				this.PaintPie( info, canvas );
+				this.PaintPie( info, canvas, false );
 
 			this.DrawLabels( info, canvas );
 		}
@@ -400,11 +401,14 @@ namespace Raydreams.Xamarin.Controls
 			// the vertical center line
 			float vertCenter = Convert.ToSingle( info.Width / 2.0 );
 
-			// shortest of vertical vs horizontal
+			// length to use for outer square - shortest of vertical vs horizontal
 			int edgeLen = new int[] { info.Width, info.Height }.Min();
 
 			// 1/2 the distance
 			float halfEdge = edgeLen / 2.0F;
+
+			// set the arc line thickness
+			this.ArcLineWidth = ( edgeLen / 20.0F ) * this.ArcLineThickness;
 
 			// inset border of the graph frame based on the arc line width
 			float border = this.ArcLineWidth * BorderFactor;
@@ -413,21 +417,114 @@ namespace Raydreams.Xamarin.Controls
 			this.Origin = new SKPoint( vertCenter, info.Height / 2.0F );
 
 			// the square to draw the ring inside of
-			this.GraphFrame = new SKRect( this.Origin.X - halfEdge + border, this.Origin.Y - halfEdge + border, this.Origin.X + halfEdge - 1 - border, this.Origin.Y + halfEdge - 1 - border );
+			this.OuterRect = new SKRect( this.Origin.X - halfEdge + border, this.Origin.Y - halfEdge + border, this.Origin.X + halfEdge - 1 - border, this.Origin.Y + halfEdge - 1 - border );
+
+			// the square inscribed inside the circle
+			this.InscribedRect = QuickCalc.InscribeSquare( this.Origin, halfEdge - border );
 
             // calculate the font for the labels, the same width is used for both which could cause issues
-			this.PrimeLabelMetrics = this.CalculateLabels( this.PrimeLabel, (float)this.PrimeLabelFontSize );
-			this.SubLabelMetrics = this.CalculateLabels( this.SubLabel, (float)this.SubLabelFontSize );
+			this.PrimeLabelMetrics = this.CalculateLabels( this.PrimeLabel, this.PrimeLabelAttributes, this.PrimeLabelFontScale );
+			this.SubLabelMetrics = this.CalculateLabels( this.SubLabel, this.SubLabelAttributes, this.SubLabelFontScale );
 		}
 
 		/// <summary>Draw a progress meter</summary>
-		/// <remarks>Value 2 is the total in Progress</remarks>
-		private void PaintProgress(SKImageInfo info, SKCanvas canvas )
+		/// <remarks>
+        /// Value 1 is the part and Value 2 is the total possible
+        /// Value 1 can exceed value 2
+		/// the OuterRect is the square the ring is center inscribed upon
+		/// </remarks>
+		private void PaintProgress(SKImageInfo info, SKCanvas canvas)
 		{
 			// always draw a background ring
 			using ( SKPath path = new SKPath() )
 			{
-				path.AddArc( this.GraphFrame, 0, 360 );
+				using (SKPaint handlePaint = new SKPaint() { Color = _disabled, StrokeWidth = this.ArcLineWidth, Style = SKPaintStyle.Stroke, IsAntialias = true } )
+				{
+					if (this.Value1 >= this.Value2)
+						handlePaint.Color = this.ArcColor1.ToSKColor();
+
+					path.AddArc( this.OuterRect, 0, 360 );
+					canvas.DrawPath( path, handlePaint );
+
+				}
+
+				// if 0 no need to continue
+				if (this.Value2 <= 0.0)
+				{
+					return;
+				}
+			}
+
+			// set up the gradient colors
+			SKColor[] colors = new SKColor[2] { this.ArcColor1.ToSKColor(), this.ArcColor2.ToSKColor() };
+
+			// sweep is in DEG -> normalize the sweep angle between 0 and 360
+			float sweep = QuickCalc.Revolution( ( this.Value1 / this.Value2 ) * 360.0F );
+			//sweep = ( sweep > 360.0 ) ? 360.0F : sweep;
+
+			// calculate the end angle in deg from top
+			//float endAngle = QuickCalc.Deg2Rad( QuickCalc.Revolution( 360 - sweep + 90 ) );
+
+			// we have to roate the drawing canvas 90 degrees CCW
+			canvas.RotateDegrees( -90, info.Width / 2, info.Height / 2 );
+
+			// draw the arc
+			using (SKPath path = new SKPath())
+			{
+				using (SKPaint arcPaint = new SKPaint { Style = SKPaintStyle.Stroke, Color = this.ArcColor1.ToSKColor() })
+				{
+					arcPaint.StrokeWidth = this.ArcLineWidth;
+					arcPaint.StrokeCap = SKStrokeCap.Butt;
+					arcPaint.IsAntialias = true;
+					arcPaint.Shader = SKShader.CreateSweepGradient( this.Origin, colors, new Single[] {0, 1}, SKShaderTileMode.Clamp, 0, sweep );
+					//arcPaint.Shader = SKShader.CreateSweepGradient( this.Origin, colors );
+
+					// create an arc to sweep along
+					path.AddArc( this.OuterRect, 0, sweep );
+					canvas.DrawPath( path, arcPaint );
+				}
+			}
+
+			// calc the other handle in caretesian points
+			Tuple<float, float> pt1 = QuickCalc.Transform( 0, this.OuterRect.Width / 2.0F );
+
+            // draw starting handle
+            using (SKPaint handlePaint = new SKPaint() { Color = _disabled })
+            {
+				if (this.Value1 >= this.Value2)
+					handlePaint.Color = this.ArcColor1.ToSKColor();
+
+				handlePaint.StrokeCap = SKStrokeCap.Round;
+                handlePaint.StrokeWidth = this.ArcLineWidth;
+                handlePaint.IsAntialias = true;
+
+                canvas.DrawPoint( pt1.Item1 + info.Rect.MidX, info.Rect.MidY + pt1.Item2, handlePaint );
+            }
+
+            // calc the other handle in caretesian points
+            Tuple<float, float> pt2 = QuickCalc.Transform( QuickCalc.Deg2Rad( sweep ), this.OuterRect.Width / 2.0F );
+
+            // draw trailing point at angle r and radius
+            using (SKPaint handlePaint = new SKPaint() { Color = this.ArcColor2.ToSKColor() })
+            {
+                handlePaint.StrokeCap = SKStrokeCap.Round;
+                handlePaint.StrokeWidth = this.ArcLineWidth * 1;
+                handlePaint.IsAntialias = true;
+
+				canvas.DrawPoint( pt2.Item1 + info.Rect.MidX, info.Rect.MidY + pt2.Item2 , handlePaint );
+			}
+
+            canvas.RotateDegrees( 90, info.Width / 2, info.Height / 2 );
+		}
+
+		/// <summary>Draw a progress meter</summary>
+		/// <remarks>Value 2 is the total in Progress</remarks>
+		private void PaintProgressold(SKImageInfo info, SKCanvas canvas )
+		{
+			// always draw a background ring
+			using ( SKPath path = new SKPath() )
+			{
+				path.AddArc( this.OuterRect, 0, 360 );
 				canvas.DrawPath( path, new SKPaint() { Color = _disabled, StrokeWidth = this.ArcLineWidth, Style = SKPaintStyle.Stroke, IsAntialias = true } );
 			}
 
@@ -435,54 +532,78 @@ namespace Raydreams.Xamarin.Controls
 			if ( this.Value2 <= 0.0 )
 			{
 				// draw starting handle
-				using ( SKPaint handlePaint = new SKPaint() { Color = this.ArcColor1.ToSKColor(), StrokeCap = SKStrokeCap.Round, StrokeWidth = this.ArcLineWidth * 2, IsAntialias = true } )
+				using ( SKPaint handlePaint = new SKPaint() { Color = this.ArcColor1.ToSKColor() } )
 				{
-					canvas.DrawPoint( this.VerticalCenter, this.GraphFrame.Top, handlePaint );
+					handlePaint.StrokeCap = SKStrokeCap.Round;
+					handlePaint.StrokeWidth = this.ArcLineWidth * 2;
+					handlePaint.IsAntialias = true;
+
+					canvas.DrawPoint( this.VerticalCenter, this.OuterRect.Top, handlePaint );
 				}
 				return;
 			}
 
-			// calc the sweep angle
-			float sweep = (this.Value1 / this.Value2) * 360.0F;
+			// set up the gradient colors
+			//SKColor[] colors = new SKColor[2] { this.ArcColor1.ToSKColor(), this.ArcColor2.ToSKColor() };
+			SKColor[] colors = new SKColor[2] { SKColor.Parse("FF0000"), SKColor.Parse( "0000FF" ) };
 
-			// calc the angles, 0 is to the right, start from overhead
+			// calc the sweep angle - calc the angles, 0 is to the right, start from overhead
+			float sweep = (this.Value1 / this.Value2) * 360.0F;
 			sweep = (sweep > 360.0) ? 360.0F : sweep;
+
+			// calculate the end angle in deg from top
+			float endAngle = QuickCalc.Deg2Rad( QuickCalc.Revolution( 360 - sweep + 90 ) );
 
 			// draw the arc
 			using ( SKPath path = new SKPath() )
 			{
-				using ( SKPaint arcPaint = new SKPaint { Style = SKPaintStyle.Stroke, Color = this.ArcColor1.ToSKColor(), StrokeWidth = this.ArcLineWidth, StrokeCap = SKStrokeCap.Round, IsAntialias = true } )
+				using ( SKPaint arcPaint = new SKPaint { Style = SKPaintStyle.Stroke, Color = this.ArcColor1.ToSKColor() } )
 				{
-					path.AddArc( this.GraphFrame, 270, sweep );
+					arcPaint.StrokeWidth = this.ArcLineWidth;
+					arcPaint.StrokeCap = SKStrokeCap.Round;
+					arcPaint.IsAntialias = true;
+					//arcPaint.Shader = SKShader.CreateSweepGradient( this.Origin, colors, new Single[] {0, 1}, SKShaderTileMode.Clamp, -90, 270 );
+					//arcPaint.Shader = SKShader.CreateSweepGradient( this.Origin, colors );
+
+					// create an arc to sweep along
+					path.AddArc( this.OuterRect, 270, sweep );
 					canvas.DrawPath( path, arcPaint );
 				}
 			}
 
 			// draw starting handle
-			using ( SKPaint handlePaint = new SKPaint() { Color = this.ArcColor1.ToSKColor(), StrokeCap = SKStrokeCap.Round, StrokeWidth = this.ArcLineWidth * 2, IsAntialias = true } )
+			using ( SKPaint handlePaint = new SKPaint() { Color = this.ArcColor1.ToSKColor() } )
 			{
-				canvas.DrawPoint( this.VerticalCenter, this.GraphFrame.Top, handlePaint );
+				handlePaint.StrokeCap = SKStrokeCap.Round;
+				handlePaint.StrokeWidth = this.ArcLineWidth * 2;
+				handlePaint.IsAntialias = true;
+
+				canvas.DrawPoint( this.VerticalCenter, this.OuterRect.Top, handlePaint );
 			}
 
-			// where's the other handle?
-			float rad = QuickCalc.Deg2Rad( QuickCalc.Revolution( 360 - sweep + 90 ) );
-			Tuple<float, float> pt = QuickCalc.Transform( rad, this.GraphFrame.Width / 2.0F );
+			// calc the other handle in caretesian points
+			Tuple<float, float> pt = QuickCalc.Transform( endAngle, this.OuterRect.Width / 2.0F );
 
 			// draw trailing point
-			using ( SKPaint handlePaint = new SKPaint() { Color = this.ArcColor2.ToSKColor(), StrokeCap = SKStrokeCap.Round, StrokeWidth = this.ArcLineWidth * 2, IsAntialias = true } )
+			using ( SKPaint handlePaint = new SKPaint() { Color = this.ArcColor2.ToSKColor() } )
 			{
+				handlePaint.StrokeCap = SKStrokeCap.Round;
+				handlePaint.StrokeWidth = this.ArcLineWidth * 2;
+				handlePaint.IsAntialias = true;
+
 				canvas.DrawPoint( pt.Item1 + info.Rect.MidX, info.Rect.MidY - pt.Item2, handlePaint );
 			}
-
 		}
 
 		/// <summary>Draw a pie meter</summary>
 		private void PaintPie( SKImageInfo info, SKCanvas canvas, bool handles = false )
 		{
+			float arcWidth = ( info.Width / 15.0F ) * 1.0F;
+
 			// always draw a background ring
 			using ( SKPath path = new SKPath() )
 			{
-				path.AddArc( this.GraphFrame, 0, 360 );
+				path.AddArc( this.OuterRect, 0, 360 );
 				canvas.DrawPath( path, new SKPaint() { Color = _disabled, StrokeWidth = this.ArcLineWidth, Style = SKPaintStyle.Stroke, IsAntialias = true } );
 			}
 
@@ -505,7 +626,7 @@ namespace Raydreams.Xamarin.Controls
 			{
 				using ( SKPaint arcPaint = new SKPaint { Style = SKPaintStyle.Stroke, Color = this.ArcColor1.ToSKColor(), StrokeWidth = this.ArcLineWidth, IsAntialias = true } )
 				{
-					path.AddArc( this.GraphFrame, 270, rewardSweep );
+					path.AddArc( this.OuterRect, 270, rewardSweep );
 					canvas.DrawPath( path, arcPaint );
 				}
 			}
@@ -515,7 +636,7 @@ namespace Raydreams.Xamarin.Controls
 			{
 				using ( SKPaint arcPaint = new SKPaint { Style = SKPaintStyle.Stroke, Color = this.ArcColor2.ToSKColor(), StrokeWidth = this.ArcLineWidth, IsAntialias = true } )
 				{
-					path.AddArc( this.GraphFrame, bonusStartAngle, 360 - rewardSweep );
+					path.AddArc( this.OuterRect, bonusStartAngle, 360 - rewardSweep );
 					canvas.DrawPath( path, arcPaint );
 				}
 			}
@@ -526,11 +647,11 @@ namespace Raydreams.Xamarin.Controls
 			// draw handles
 			using ( SKPaint handlePaint = new SKPaint() { Color = this.ArcColor1.ToSKColor(), StrokeCap = SKStrokeCap.Round, StrokeWidth = this.ArcLineWidth * 2, IsAntialias = true } )
 			{
-				canvas.DrawPoint( this.VerticalCenter, this.GraphFrame.Top, handlePaint );
+				canvas.DrawPoint( this.VerticalCenter, this.OuterRect.Top, handlePaint );
 
 				// where's the other handle?
 				float rad = QuickCalc.Deg2Rad( QuickCalc.Revolution( 360 - rewardSweep + 90 ) );
-				Tuple<float, float> pt = QuickCalc.Transform( rad, this.GraphFrame.Width / 2.0F );
+				Tuple<float, float> pt = QuickCalc.Transform( rad, this.OuterRect.Width / 2.0F );
 
 				handlePaint.Color = this.ArcColor2.ToSKColor();
 				canvas.DrawPoint( pt.Item1 + info.Rect.MidX, info.Rect.MidY - pt.Item2, handlePaint );
@@ -541,6 +662,7 @@ namespace Raydreams.Xamarin.Controls
 		/// <summary>Draws the X axis labels</summary>
 		private void DrawLabels( SKImageInfo info, SKCanvas canvas )
 		{
+
 			// draw prime label
 			if ( !String.IsNullOrWhiteSpace(this.PrimeLabel) )
 			{
@@ -573,6 +695,7 @@ namespace Raydreams.Xamarin.Controls
 					// set the font family and style
 					this.SetFont( textPaint, this.SubLabelMetrics.FontSize, this.SubLabelAttributes );
 
+					// set below the prime label
 					SKRect rect = new SKRect( this.Origin.X - this.MaxPrimeLabelWidth / 2.0F, this.Origin.Y + (this.PrimeLabelMetrics.Height / 2.0F),
                         this.Origin.X + this.MaxPrimeLabelWidth / 2.0F, this.Origin.Y + (this.PrimeLabelMetrics.Height / 2.0F) + this.SubLabelMetrics.Height );
 
@@ -594,7 +717,8 @@ namespace Raydreams.Xamarin.Controls
 
 			// draw origin and control area frame
 			canvas.DrawPoint( this.Origin, new SKPaint() { Color = _test, StrokeWidth = 20, Style = SKPaintStyle.Stroke, StrokeCap = SKStrokeCap.Round } );
-			canvas.DrawRect( this.GraphFrame, debugPaint );
+			canvas.DrawRect( this.OuterRect, debugPaint );
+			canvas.DrawRect( this.InscribedRect, debugPaint );
 
 			// frame the entire canvas
 			canvas.DrawRect(0,0,info.Width-1,info.Height-1, new SKPaint() { Color = _test, StrokeWidth = 1, Style = SKPaintStyle.Stroke } );
@@ -607,64 +731,69 @@ namespace Raydreams.Xamarin.Controls
 		/// <summary>Calculates the needed font size for the X labels</summary>
 		/// <returns></returns>
 		/// <remarks>Right now only calculates the prime label text box</remarks>
-		internal LabelMetrics CalculateLabels( string label, float startFontSize = 250.0F )
+		internal LabelMetrics CalculateLabels( string label, FontAttributes attr, float fontScale = 100.0F )
 		{
-			float minScale = 1000.0F;
+			// if the label is empty
+			if (String.IsNullOrEmpty( label ))
+				return LabelMetrics.Default();
+
+			if (fontScale < 1)
+				fontScale = 1.0F;
+
 			float maxHeight = 0.0F;
-			float fontSize = startFontSize;
+			float fontSize = 250.0F;
 			float desc = 0.0F;
 
 			// set the max label width to some default
-			this.MaxPrimeLabelWidth = this.GraphFrame.Width - (this.ArcLineWidth * BorderFactor * 2.0F);
+			// use the inscribed square width
+			//this.MaxPrimeLabelWidth = this.OuterRect.Width - (this.ArcLineWidth * BorderFactor * 2.0F);
+			this.MaxPrimeLabelWidth = this.InscribedRect.Width;
 
-			// scale only based on height
-			using ( SKPaint textPaint = new SKPaint() )
+			// determine the ideal font
+			using (SKPaint textPaint = new SKPaint())
 			{
-				// set the font
-				this.SetFont( textPaint, fontSize, this.PrimeLabelAttributes );
-				
-				// measure it
-				SKRect textBounds = new SKRect();
-				textPaint.MeasureText( label, ref textBounds );
+				// init the font with all its properties
+				this.SetFont( textPaint, fontSize, attr );
 
-                // get the font metrics which includes max height
+				// find the min font size for the width
+				LabelMetrics widthMet = QuickCalc.CalcSizeForWidth( textPaint, this.MaxPrimeLabelWidth, label );
+				textPaint.TextSize = widthMet.FontSize;
+
+				// get the NEW font metrics which includes max height
 				SKFontMetrics metrics;
 				textPaint.GetFontMetrics( out metrics );
 
-				float chord = Convert.ToSingle( QuickCalc.CalcChord(this.GraphFrame.Width / 2.0F, (metrics.Descent - metrics.Ascent) / 2.0F ) );
-				this.MaxPrimeLabelWidth = chord - (this.ArcLineWidth * BorderFactor * 2.0F);
+				// set the calculated values thus far
+				desc = metrics.Descent;
+				maxHeight = metrics.Descent - metrics.Ascent;
 
-				// we only care the width that fits in the arc
-				// float scaley = (this.GraphFrame.Height / 4.0F) / (metrics.Descent - metrics.Ascent);
-				if ( textBounds.Width > this.MaxPrimeLabelWidth )
+				// for fun calculate the width of the circle at the top of the text
+				//float chord = Convert.ToSingle( QuickCalc.CalcChord( this.OuterRect.Width / 2.0F, maxHeight / 2.0F ) );
+				//this.MaxPrimeLabelWidth = chord - ( this.ArcLineWidth * BorderFactor * 2.0F );
+
+				// now check its not too tall
+				if ( maxHeight > this.InscribedRect.Height )
                 {
-					float scalex = this.MaxPrimeLabelWidth / textBounds.Width;
-					minScale = new float[] { minScale, scalex }.Min();
-					fontSize = textPaint.TextSize * minScale;
+					// scale the font further based on height
+					float scale = this.OuterRect.Height / maxHeight;
+					textPaint.TextSize = textPaint.TextSize * scale;
 				}
-			}
 
-			// use the new font size to re-measure
-			using ( SKPaint textPaint = new SKPaint() { TextSize = fontSize, IsAntialias = true, IsStroke = false } )
-			{
-				textPaint.Typeface = SKTypeface.FromFamilyName( this.LabelFontFamily );
+				// now scale by the relative user set scale
+				if ( fontScale < 100.0F )
+					textPaint.TextSize = textPaint.TextSize * ( fontScale / 100.0F );
 
-				SKFontMetrics metrics;
-				textPaint.GetFontMetrics( out metrics );
-
-				if ( metrics.Descent > desc )
-					desc = metrics.Descent;
-
-				// sets the distance from Ascent to Descent
-				if ( metrics.Descent - metrics.Ascent > maxHeight )
-					maxHeight = metrics.Descent - metrics.Ascent;
-
+                // remeasure after user set scaling
+                textPaint.GetFontMetrics( out metrics );
+				fontSize = textPaint.TextSize;
+				desc = metrics.Descent;
+				maxHeight = metrics.Descent - metrics.Ascent;
 			}
 
 			return new LabelMetrics( fontSize, maxHeight, desc );
 		}
 
-		/// <summary>Sets up the SK Font attributes</summary>
+		/// <summary>Sets up the SK Font attributes including family and bold</summary>
 		/// <param name="textPaint"></param>
 		internal void SetFont( SKPaint textPaint, float fontSize, FontAttributes weight )
 		{

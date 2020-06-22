@@ -1,7 +1,7 @@
 ﻿namespace Raydreams.Xamarin.Controls
 {
 	/// <summary>Captures sizes needed for the X and Y label from pre calculations for later usage.</summary>
-	internal struct LabelMetrics
+	public struct LabelMetrics
 	{
 		public LabelMetrics(float fs, float h, float desc)
 		{
@@ -9,6 +9,11 @@
 			this.Height = h;
 			this.Descent = desc;
 		}
+
+		public static LabelMetrics Default()
+        {
+			return new LabelMetrics( 10, 10, 1 );
+        }
 
 		/// <summary>The calculated font size</summary>
 		public float FontSize { get; set; }
