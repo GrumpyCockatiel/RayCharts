@@ -440,7 +440,7 @@ namespace Raydreams.Xamarin.Controls
 
 			// sweep is in DEG -> normalize the sweep angle between 0 and 360
 			//float sweep = QuickCalc.Revolution( ( this.Value1 / this.Value2 ) * 360.0F );
-			float sweep = ( this.Value1 % this.Value2 / 100F ) * 360.0F;
+			float sweep = ( this.Value1 % this.Value2 / this.Value2 ) * 360.0F;
 			//sweep = ( sweep > 360.0 ) ? 360.0F : sweep;
 
 			// we have to roate the drawing canvas 90 degrees CCW
@@ -513,7 +513,6 @@ namespace Raydreams.Xamarin.Controls
 					using (SKPaint arcPaint = new SKPaint { Style = SKPaintStyle.Stroke })
 					{
 						arcPaint.Color = this.ArcColor2.ToSKColor();
-						//arcPaint.Color = SKColor.Parse("FF0000");
 						arcPaint.StrokeWidth = this.ArcLineWidth;
 						arcPaint.StrokeCap = SKStrokeCap.Butt;
 						arcPaint.IsAntialias = true;
@@ -553,30 +552,6 @@ namespace Raydreams.Xamarin.Controls
 
 			// rotate it all back
 			canvas.RotateDegrees( 90, info.Width / 2, info.Height / 2 );
-
-            // calculate the end angle in deg from top
-            //float endAngle = QuickCalc.Deg2Rad( QuickCalc.Revolution( 360 - sweep + 90 ) );
-
-
-            // calc the other handle in caretesian points
-            // BUG slightly off from original sweep
-            //Tuple<float, float> pt1 = QuickCalc.Transform( 0, this.OuterRect.Width / 2.0F );
-
-            // draw starting handle if it less than 1 rotation
-            //if (this.Value1 <= this.Value2)
-            //{
-            //    using (SKPaint handlePaint = new SKPaint() { Color = _disabled })
-            //    {
-            //        if (this.Value1 >= this.Value2)
-            //            handlePaint.Color = this.ArcColor1.ToSKColor();
-
-            //        handlePaint.StrokeCap = SKStrokeCap.Round;
-            //        handlePaint.StrokeWidth = this.ArcLineWidth;
-            //        handlePaint.IsAntialias = true;
-
-            //        canvas.DrawPoint( pt1.Item1 + info.Rect.MidX, info.Rect.MidY + pt1.Item2, handlePaint );
-            //    }
-            //}
 
         }
 
@@ -759,7 +734,7 @@ namespace Raydreams.Xamarin.Controls
 				if ( maxHeight > this.InscribedRect.Height )
                 {
 					// scale the font further based on height
-					float scale = this.OuterRect.Height / maxHeight;
+					float scale = this.InscribedRect.Height / maxHeight;
 					textPaint.TextSize = textPaint.TextSize * scale;
 				}
 
