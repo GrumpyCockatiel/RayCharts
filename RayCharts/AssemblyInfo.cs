@@ -3,7 +3,7 @@ using Xamarin.Forms.Xaml;
 
 [assembly: XamlCompilation( XamlCompilationOptions.Compile )]
 
-[assembly: ExportFont( "tron.ttf" )]
+[assembly: ExportFont( "tron.ttf", Alias = "Tron" )]
 
 [assembly: ExportFont( "Roboto-Regular.ttf" )]
 

@@ -435,165 +435,150 @@ namespace Raydreams.Xamarin.Controls
 		/// </remarks>
 		private void PaintProgress(SKImageInfo info, SKCanvas canvas)
 		{
-			// always draw a background ring
-			using ( SKPath path = new SKPath() )
-			{
-				using (SKPaint handlePaint = new SKPaint() { Color = _disabled, StrokeWidth = this.ArcLineWidth, Style = SKPaintStyle.Stroke, IsAntialias = true } )
-				{
-					if (this.Value1 >= this.Value2)
-						handlePaint.Color = this.ArcColor1.ToSKColor();
-
-					path.AddArc( this.OuterRect, 0, 360 );
-					canvas.DrawPath( path, handlePaint );
-
-				}
-
-				// if 0 no need to continue
-				if (this.Value2 <= 0.0)
-				{
-					return;
-				}
-			}
-
 			// set up the gradient colors
 			SKColor[] colors = new SKColor[2] { this.ArcColor1.ToSKColor(), this.ArcColor2.ToSKColor() };
 
 			// sweep is in DEG -> normalize the sweep angle between 0 and 360
-			float sweep = QuickCalc.Revolution( ( this.Value1 / this.Value2 ) * 360.0F );
+			//float sweep = QuickCalc.Revolution( ( this.Value1 / this.Value2 ) * 360.0F );
+			float sweep = ( this.Value1 % this.Value2 / 100F ) * 360.0F;
 			//sweep = ( sweep > 360.0 ) ? 360.0F : sweep;
-
-			// calculate the end angle in deg from top
-			//float endAngle = QuickCalc.Deg2Rad( QuickCalc.Revolution( 360 - sweep + 90 ) );
 
 			// we have to roate the drawing canvas 90 degrees CCW
 			canvas.RotateDegrees( -90, info.Width / 2, info.Height / 2 );
 
-			// draw the arc
-			using (SKPath path = new SKPath())
-			{
-				using (SKPaint arcPaint = new SKPaint { Style = SKPaintStyle.Stroke, Color = this.ArcColor1.ToSKColor() })
+			// no value
+			if (this.Value1 <= 0.0)
+            {
+				// draw background ring
+				using (SKPath path = new SKPath())
 				{
-					arcPaint.StrokeWidth = this.ArcLineWidth;
-					arcPaint.StrokeCap = SKStrokeCap.Butt;
-					arcPaint.IsAntialias = true;
-					arcPaint.Shader = SKShader.CreateSweepGradient( this.Origin, colors, new Single[] {0, 1}, SKShaderTileMode.Clamp, 0, sweep );
-					//arcPaint.Shader = SKShader.CreateSweepGradient( this.Origin, colors );
+					using (SKPaint bkgPaint = new SKPaint() { Color = _disabled, StrokeWidth = this.ArcLineWidth, Style = SKPaintStyle.Stroke, IsAntialias = true })
+					{
+						path.AddArc( this.OuterRect, 0, 360.0F );
+						canvas.DrawPath( path, bkgPaint );
+					}
+				}
+			}
+			// less than 1 revolution
+			else if (this.Value1 < this.Value2)
+			{
+				// draw background ring
+				using (SKPath path = new SKPath())
+				{
+					using (SKPaint bkgPaint = new SKPaint() { Color = _disabled, StrokeWidth = this.ArcLineWidth, Style = SKPaintStyle.Stroke, IsAntialias = true })
+					{
+						path.AddArc( this.OuterRect, 0, 360.0F );
+						canvas.DrawPath( path, bkgPaint );
+					}
+				}
 
-					// create an arc to sweep along
-					path.AddArc( this.OuterRect, 0, sweep );
-					canvas.DrawPath( path, arcPaint );
+				// draw the partial arc
+				using (SKPath path = new SKPath())
+				{
+					using (SKPaint arcPaint = new SKPaint { Style = SKPaintStyle.Stroke, Color = this.ArcColor1.ToSKColor() })
+					{
+						arcPaint.StrokeWidth = this.ArcLineWidth;
+						arcPaint.StrokeCap = SKStrokeCap.Butt;
+						arcPaint.IsAntialias = true;
+						arcPaint.Shader = SKShader.CreateSweepGradient( this.Origin, colors, new Single[] { 0, 1 }, SKShaderTileMode.Clamp, 0, sweep );
+
+						// create an arc to sweep along
+						path.AddArc( this.OuterRect, 0, sweep );
+						canvas.DrawPath( path, arcPaint );
+					}
+				}
+			}
+			else // 1 or more revolution
+            {
+				// draw background ring
+				using (SKPath path = new SKPath())
+				{
+					using ( SKPaint bkgPaint = new SKPaint() { Color = this.ArcColor1.ToSKColor(), StrokeWidth = this.ArcLineWidth } )
+					{
+						bkgPaint.Style = SKPaintStyle.Stroke;
+						bkgPaint.IsAntialias = true;
+
+						path.AddArc( this.OuterRect, 0, 360.0F );
+						canvas.DrawPath( path, bkgPaint );
+					}
+				}
+
+				// subtract -180 deg from the current sweep
+				float startAngle = (sweep < 180) ? 0 : sweep - 180.0F;
+				float ndSweep = ( sweep < 180 ) ? sweep : 180.0F;
+
+				// draw the partial arc
+				using (SKPath path = new SKPath())
+				{
+					using (SKPaint arcPaint = new SKPaint { Style = SKPaintStyle.Stroke })
+					{
+						arcPaint.Color = this.ArcColor2.ToSKColor();
+						//arcPaint.Color = SKColor.Parse("FF0000");
+						arcPaint.StrokeWidth = this.ArcLineWidth;
+						arcPaint.StrokeCap = SKStrokeCap.Butt;
+						arcPaint.IsAntialias = true;
+						arcPaint.Shader = SKShader.CreateSweepGradient( this.Origin, colors, new Single[] { 0, 1 }, SKShaderTileMode.Clamp, startAngle, ndSweep );
+
+						// create an arc to sweep along
+						path.AddArc( this.OuterRect, startAngle, ndSweep );
+						canvas.DrawPath( path, arcPaint );
+					}
 				}
 			}
 
+			Tuple<float, float> pt1 = QuickCalc.Transform( QuickCalc.Deg2Rad( sweep + 2 ), this.OuterRect.Width / 2.0F );
+
 			// calc the other handle in caretesian points
-			Tuple<float, float> pt1 = QuickCalc.Transform( 0, this.OuterRect.Width / 2.0F );
+			Tuple<float, float> pt2 = QuickCalc.Transform( QuickCalc.Deg2Rad( sweep ), this.OuterRect.Width / 2.0F );
 
-            // draw starting handle
-            using (SKPaint handlePaint = new SKPaint() { Color = _disabled })
-            {
-				if (this.Value1 >= this.Value2)
-					handlePaint.Color = this.ArcColor1.ToSKColor();
-
+			// draw trailing point at angle r and radius
+			using (SKPaint handlePaint = new SKPaint() { Color = this.BackgroundColor.ToSKColor() })
+			{
 				handlePaint.StrokeCap = SKStrokeCap.Round;
-                handlePaint.StrokeWidth = this.ArcLineWidth;
-                handlePaint.IsAntialias = true;
+				handlePaint.StrokeWidth = this.ArcLineWidth * 2;
+				handlePaint.IsAntialias = true;
 
-                canvas.DrawPoint( pt1.Item1 + info.Rect.MidX, info.Rect.MidY + pt1.Item2, handlePaint );
-            }
+				canvas.DrawPoint( pt1.Item1 + info.Rect.MidX, info.Rect.MidY + pt1.Item2, handlePaint );
+			}
+
+			// draw trailing point at angle r and radius
+			using (SKPaint handlePaint = new SKPaint() { Color = this.ArcColor2.ToSKColor() })
+			{
+				handlePaint.StrokeCap = SKStrokeCap.Round;
+				handlePaint.StrokeWidth = this.ArcLineWidth * 2;
+				handlePaint.IsAntialias = true;
+
+				canvas.DrawPoint( pt2.Item1 + info.Rect.MidX, info.Rect.MidY + pt2.Item2, handlePaint );
+			}
+
+			// rotate it all back
+			canvas.RotateDegrees( 90, info.Width / 2, info.Height / 2 );
+
+            // calculate the end angle in deg from top
+            //float endAngle = QuickCalc.Deg2Rad( QuickCalc.Revolution( 360 - sweep + 90 ) );
+
 
             // calc the other handle in caretesian points
-            Tuple<float, float> pt2 = QuickCalc.Transform( QuickCalc.Deg2Rad( sweep ), this.OuterRect.Width / 2.0F );
+            // BUG slightly off from original sweep
+            //Tuple<float, float> pt1 = QuickCalc.Transform( 0, this.OuterRect.Width / 2.0F );
 
-            // draw trailing point at angle r and radius
-            using (SKPaint handlePaint = new SKPaint() { Color = this.ArcColor2.ToSKColor() })
-            {
-                handlePaint.StrokeCap = SKStrokeCap.Round;
-                handlePaint.StrokeWidth = this.ArcLineWidth * 1;
-                handlePaint.IsAntialias = true;
+            // draw starting handle if it less than 1 rotation
+            //if (this.Value1 <= this.Value2)
+            //{
+            //    using (SKPaint handlePaint = new SKPaint() { Color = _disabled })
+            //    {
+            //        if (this.Value1 >= this.Value2)
+            //            handlePaint.Color = this.ArcColor1.ToSKColor();
 
-				canvas.DrawPoint( pt2.Item1 + info.Rect.MidX, info.Rect.MidY + pt2.Item2 , handlePaint );
-			}
+            //        handlePaint.StrokeCap = SKStrokeCap.Round;
+            //        handlePaint.StrokeWidth = this.ArcLineWidth;
+            //        handlePaint.IsAntialias = true;
 
-            canvas.RotateDegrees( 90, info.Width / 2, info.Height / 2 );
-		}
+            //        canvas.DrawPoint( pt1.Item1 + info.Rect.MidX, info.Rect.MidY + pt1.Item2, handlePaint );
+            //    }
+            //}
 
-		/// <summary>Draw a progress meter</summary>
-		/// <remarks>Value 2 is the total in Progress</remarks>
-		private void PaintProgressold(SKImageInfo info, SKCanvas canvas )
-		{
-			// always draw a background ring
-			using ( SKPath path = new SKPath() )
-			{
-				path.AddArc( this.OuterRect, 0, 360 );
-				canvas.DrawPath( path, new SKPaint() { Color = _disabled, StrokeWidth = this.ArcLineWidth, Style = SKPaintStyle.Stroke, IsAntialias = true } );
-			}
-
-			// if 0 no need to continue
-			if ( this.Value2 <= 0.0 )
-			{
-				// draw starting handle
-				using ( SKPaint handlePaint = new SKPaint() { Color = this.ArcColor1.ToSKColor() } )
-				{
-					handlePaint.StrokeCap = SKStrokeCap.Round;
-					handlePaint.StrokeWidth = this.ArcLineWidth * 2;
-					handlePaint.IsAntialias = true;
-
-					canvas.DrawPoint( this.VerticalCenter, this.OuterRect.Top, handlePaint );
-				}
-				return;
-			}
-
-			// set up the gradient colors
-			//SKColor[] colors = new SKColor[2] { this.ArcColor1.ToSKColor(), this.ArcColor2.ToSKColor() };
-			SKColor[] colors = new SKColor[2] { SKColor.Parse("FF0000"), SKColor.Parse( "0000FF" ) };
-
-			// calc the sweep angle - calc the angles, 0 is to the right, start from overhead
-			float sweep = (this.Value1 / this.Value2) * 360.0F;
-			sweep = (sweep > 360.0) ? 360.0F : sweep;
-
-			// calculate the end angle in deg from top
-			float endAngle = QuickCalc.Deg2Rad( QuickCalc.Revolution( 360 - sweep + 90 ) );
-
-			// draw the arc
-			using ( SKPath path = new SKPath() )
-			{
-				using ( SKPaint arcPaint = new SKPaint { Style = SKPaintStyle.Stroke, Color = this.ArcColor1.ToSKColor() } )
-				{
-					arcPaint.StrokeWidth = this.ArcLineWidth;
-					arcPaint.StrokeCap = SKStrokeCap.Round;
-					arcPaint.IsAntialias = true;
-					//arcPaint.Shader = SKShader.CreateSweepGradient( this.Origin, colors, new Single[] {0, 1}, SKShaderTileMode.Clamp, -90, 270 );
-					//arcPaint.Shader = SKShader.CreateSweepGradient( this.Origin, colors );
-
-					// create an arc to sweep along
-					path.AddArc( this.OuterRect, 270, sweep );
-					canvas.DrawPath( path, arcPaint );
-				}
-			}
-
-			// draw starting handle
-			using ( SKPaint handlePaint = new SKPaint() { Color = this.ArcColor1.ToSKColor() } )
-			{
-				handlePaint.StrokeCap = SKStrokeCap.Round;
-				handlePaint.StrokeWidth = this.ArcLineWidth * 2;
-				handlePaint.IsAntialias = true;
-
-				canvas.DrawPoint( this.VerticalCenter, this.OuterRect.Top, handlePaint );
-			}
-
-			// calc the other handle in caretesian points
-			Tuple<float, float> pt = QuickCalc.Transform( endAngle, this.OuterRect.Width / 2.0F );
-
-			// draw trailing point
-			using ( SKPaint handlePaint = new SKPaint() { Color = this.ArcColor2.ToSKColor() } )
-			{
-				handlePaint.StrokeCap = SKStrokeCap.Round;
-				handlePaint.StrokeWidth = this.ArcLineWidth * 2;
-				handlePaint.IsAntialias = true;
-
-				canvas.DrawPoint( pt.Item1 + info.Rect.MidX, info.Rect.MidY - pt.Item2, handlePaint );
-			}
-		}
+        }
 
 		/// <summary>Draw a pie meter</summary>
 		private void PaintPie( SKImageInfo info, SKCanvas canvas, bool handles = false )
@@ -662,7 +647,6 @@ namespace Raydreams.Xamarin.Controls
 		/// <summary>Draws the X axis labels</summary>
 		private void DrawLabels( SKImageInfo info, SKCanvas canvas )
 		{
-
 			// draw prime label
 			if ( !String.IsNullOrWhiteSpace(this.PrimeLabel) )
 			{
@@ -813,3 +797,82 @@ namespace Raydreams.Xamarin.Controls
 
 	}
 }
+
+
+///// <summary>Draw a progress meter</summary>
+///// <remarks>Value 2 is the total in Progress</remarks>
+//private void PaintProgressold(SKImageInfo info, SKCanvas canvas)
+//{
+//	// always draw a background ring
+//	using (SKPath path = new SKPath())
+//	{
+//		path.AddArc( this.OuterRect, 0, 360 );
+//		canvas.DrawPath( path, new SKPaint() { Color = _disabled, StrokeWidth = this.ArcLineWidth, Style = SKPaintStyle.Stroke, IsAntialias = true } );
+//	}
+
+//	// if 0 no need to continue
+//	if (this.Value2 <= 0.0)
+//	{
+//		// draw starting handle
+//		using (SKPaint handlePaint = new SKPaint() { Color = this.ArcColor1.ToSKColor() })
+//		{
+//			handlePaint.StrokeCap = SKStrokeCap.Round;
+//			handlePaint.StrokeWidth = this.ArcLineWidth * 2;
+//			handlePaint.IsAntialias = true;
+
+//			canvas.DrawPoint( this.VerticalCenter, this.OuterRect.Top, handlePaint );
+//		}
+//		return;
+//	}
+
+//	// set up the gradient colors
+//	//SKColor[] colors = new SKColor[2] { this.ArcColor1.ToSKColor(), this.ArcColor2.ToSKColor() };
+//	SKColor[] colors = new SKColor[2] { SKColor.Parse( "FF0000" ), SKColor.Parse( "0000FF" ) };
+
+//	// calc the sweep angle - calc the angles, 0 is to the right, start from overhead
+//	float sweep = ( this.Value1 / this.Value2 ) * 360.0F;
+//	sweep = ( sweep > 360.0 ) ? 360.0F : sweep;
+
+//	// calculate the end angle in deg from top
+//	float endAngle = QuickCalc.Deg2Rad( QuickCalc.Revolution( 360 - sweep + 90 ) );
+
+//	// draw the arc
+//	using (SKPath path = new SKPath())
+//	{
+//		using (SKPaint arcPaint = new SKPaint { Style = SKPaintStyle.Stroke, Color = this.ArcColor1.ToSKColor() })
+//		{
+//			arcPaint.StrokeWidth = this.ArcLineWidth;
+//			arcPaint.StrokeCap = SKStrokeCap.Round;
+//			arcPaint.IsAntialias = true;
+//			//arcPaint.Shader = SKShader.CreateSweepGradient( this.Origin, colors, new Single[] {0, 1}, SKShaderTileMode.Clamp, -90, 270 );
+//			//arcPaint.Shader = SKShader.CreateSweepGradient( this.Origin, colors );
+
+//			// create an arc to sweep along
+//			path.AddArc( this.OuterRect, 270, sweep );
+//			canvas.DrawPath( path, arcPaint );
+//		}
+//	}
+
+//	// draw starting handle
+//	using (SKPaint handlePaint = new SKPaint() { Color = this.ArcColor1.ToSKColor() })
+//	{
+//		handlePaint.StrokeCap = SKStrokeCap.Round;
+//		handlePaint.StrokeWidth = this.ArcLineWidth * 2;
+//		handlePaint.IsAntialias = true;
+
+//		canvas.DrawPoint( this.VerticalCenter, this.OuterRect.Top, handlePaint );
+//	}
+
+//	// calc the other handle in caretesian points
+//	Tuple<float, float> pt = QuickCalc.Transform( endAngle, this.OuterRect.Width / 2.0F );
+
+//	// draw trailing point
+//	using (SKPaint handlePaint = new SKPaint() { Color = this.ArcColor2.ToSKColor() })
+//	{
+//		handlePaint.StrokeCap = SKStrokeCap.Round;
+//		handlePaint.StrokeWidth = this.ArcLineWidth * 2;
+//		handlePaint.IsAntialias = true;
+
+//		canvas.DrawPoint( pt.Item1 + info.Rect.MidX, info.Rect.MidY - pt.Item2, handlePaint );
+//	}
+//}

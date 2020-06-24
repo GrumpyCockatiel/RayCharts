@@ -19,7 +19,7 @@ namespace RayCharts.Views
 
 			//this.pieChartView.ArcLineWidth = Convert.ToSingle( this.pieChartView.Width / 15.0F );
 
-			//this.meterChartView.PrimeLabel = "Limy Áhm 333";
+			//this.meterChartView.PrimeLabel = "Limy Áhm 222";
 			//this.meterChartView.SubLabel = "subby label";
 
 			//this.pieChartView.PrimeLabel = "1ÁyE";

@@ -33,11 +33,11 @@
             </Style>
 
 			<Style x:Key="TestStyle1" TargetType="ray:ProgressGraph">
-				<Setter Property="XLabelFontFamily" Value="Roboto" />
+				<Setter Property="XLabelFontFamily" Value="Bitter" />
             </Style>
 
 			<Style x:Key="TestStyle2" TargetType="ray:ProgressMeter">
-				<Setter Property="LabelFontFamily" Value="Roboto" />
+				<Setter Property="LabelFontFamily" Value="Bitter" />
             </Style>
 
         </ResourceDictionary>

@@ -6,7 +6,7 @@
 
 	<StackLayout Orientation="Vertical" Margin="20,20,20,20">
 
-        <ray:ProgressMeter x:Name="meterChartView" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand"
+        <ray:ProgressMeter x:Name="pieChartView" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand"
 			PrimaryTextColor="White" SubTextColor="White" Style="{StaticResource TestStyle2}"
 			LayoutGrid="True" BackgroundColor="{StaticResource DarkGray}" 
 			Padding="0" Value1="33" Value2="66" ArcLineWidth="20" ArcColor1="{StaticResource GreenColor1}"
@@ -16,12 +16,12 @@
 			</x:Arguments>
 		</ray:ProgressMeter>
 
-		<ray:ProgressMeter x:Name="pieChartView" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand"
+		<ray:ProgressMeter x:Name="meterChartView" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand"
 			PrimaryTextColor="White" SubTextColor="White" Style="{StaticResource TestStyle2}"
-			LayoutGrid="False" BackgroundColor="{StaticResource DarkGray}" 
-			Padding="0" Value1="166" Value2="100" ArcColor1="{StaticResource GreenColor1}"
+			LayoutGrid="True" BackgroundColor="{StaticResource DarkGray}" 
+			Padding="0" Value1="0" Value2="100" ArcColor1="{StaticResource GreenColor1}"
 			ArcColor2="{StaticResource GreenColor2}" PrimeLabelAttributes="Bold" PrimeLabelFontScale="100.0"
-			PrimeLabel="888" SubLabel="somé thing" ArcLineThickness="1">
+			PrimeLabel="9"  ArcLineThickness="1">
 			<x:Arguments>
 				<ray:MeterStyle>Progress</ray:MeterStyle>
 			</x:Arguments>
