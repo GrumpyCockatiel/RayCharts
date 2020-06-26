@@ -430,8 +430,7 @@ namespace Raydreams.Xamarin.Controls
 		/// <summary>Draw a progress meter</summary>
 		/// <remarks>
         /// Value 1 is the part and Value 2 is the total possible
-        /// Value 1 can exceed value 2
-		/// the OuterRect is the square the ring is center inscribed upon
+        /// Value 1 can exceed value 2 for mutiple revolutions
 		/// </remarks>
 		private void PaintProgress(SKImageInfo info, SKCanvas canvas)
 		{
@@ -440,9 +439,9 @@ namespace Raydreams.Xamarin.Controls
 
 			// sweep is in DEG -> normalize the sweep angle between 0 and 360
 			//float sweep = QuickCalc.Revolution( ( this.Value1 / this.Value2 ) * 360.0F );
-			float sweep = ( this.Value1 % this.Value2 / this.Value2 ) * 360.0F;
 			//sweep = ( sweep > 360.0 ) ? 360.0F : sweep;
-
+			float sweep = ( this.Value1 % this.Value2 / this.Value2 ) * 360.0F;
+			
 			// we have to roate the drawing canvas 90 degrees CCW
 			canvas.RotateDegrees( -90, info.Width / 2, info.Height / 2 );
 
@@ -503,11 +502,10 @@ namespace Raydreams.Xamarin.Controls
 					}
 				}
 
-				// subtract -180 deg from the current sweep
-				float startAngle = (sweep < 180) ? 0 : sweep - 180.0F;
-				float ndSweep = ( sweep < 180 ) ? sweep : 180.0F;
+				// rotate the canvas by the sweep angle so we always start at 0
+				canvas.RotateDegrees( sweep-180, info.Width / 2, info.Height / 2 );
 
-				// draw the partial arc
+				// draw the partial gradiant arc
 				using (SKPath path = new SKPath())
 				{
 					using (SKPaint arcPaint = new SKPaint { Style = SKPaintStyle.Stroke })
@@ -516,43 +514,42 @@ namespace Raydreams.Xamarin.Controls
 						arcPaint.StrokeWidth = this.ArcLineWidth;
 						arcPaint.StrokeCap = SKStrokeCap.Butt;
 						arcPaint.IsAntialias = true;
-						arcPaint.Shader = SKShader.CreateSweepGradient( this.Origin, colors, new Single[] { 0, 1 }, SKShaderTileMode.Clamp, startAngle, ndSweep );
 
-						// create an arc to sweep along
-						path.AddArc( this.OuterRect, startAngle, ndSweep );
+						// sweep gradient uses start angle to end angle
+						arcPaint.Shader = SKShader.CreateSweepGradient( this.Origin, colors, new Single[] { 0, 1 }, SKShaderTileMode.Clamp, 0, 180 );
+
+						// create an arc to sweep along - uses start angle and then how many degrees to rotate from start
+						path.AddArc( this.OuterRect, 0, 180 );
 						canvas.DrawPath( path, arcPaint );
 					}
 				}
+
+				canvas.RotateDegrees( -(sweep - 180), info.Width / 2, info.Height / 2 );
 			}
 
-			Tuple<float, float> pt1 = QuickCalc.Transform( QuickCalc.Deg2Rad( sweep + 2 ), this.OuterRect.Width / 2.0F );
-
-			// calc the other handle in caretesian points
+			// calc pts for the trailing handle
+			Tuple<float, float> pt1 = QuickCalc.Transform( QuickCalc.Deg2Rad( sweep + (this.ArcLineWidth * 0.075F) ), this.OuterRect.Width / 2.0F );
 			Tuple<float, float> pt2 = QuickCalc.Transform( QuickCalc.Deg2Rad( sweep ), this.OuterRect.Width / 2.0F );
 
-			// draw trailing point at angle r and radius
+			// draw the trailing point with shadow
 			using (SKPaint handlePaint = new SKPaint() { Color = this.BackgroundColor.ToSKColor() })
 			{
 				handlePaint.StrokeCap = SKStrokeCap.Round;
 				handlePaint.StrokeWidth = this.ArcLineWidth * 2;
 				handlePaint.IsAntialias = true;
 
+				// shadow
 				canvas.DrawPoint( pt1.Item1 + info.Rect.MidX, info.Rect.MidY + pt1.Item2, handlePaint );
-			}
 
-			// draw trailing point at angle r and radius
-			using (SKPaint handlePaint = new SKPaint() { Color = this.ArcColor2.ToSKColor() })
-			{
-				handlePaint.StrokeCap = SKStrokeCap.Round;
-				handlePaint.StrokeWidth = this.ArcLineWidth * 2;
-				handlePaint.IsAntialias = true;
+				// change color
+				handlePaint.Color = this.ArcColor2.ToSKColor();
 
+				// handle
 				canvas.DrawPoint( pt2.Item1 + info.Rect.MidX, info.Rect.MidY + pt2.Item2, handlePaint );
 			}
 
 			// rotate it all back
 			canvas.RotateDegrees( 90, info.Width / 2, info.Height / 2 );
-
         }
 
 		/// <summary>Draw a pie meter</summary>
