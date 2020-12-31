@@ -43,11 +43,11 @@ namespace RayCharts.Views
 
 			LineSeries l1 = new LineSeries()
 			{
-				LineColor = green,
+				LineColor = red,
 				StrokeWidth = 2.5F,
-				Values = new SKPoint[] { new SKPoint(1,0.0F),
-				new SKPoint( 2, 0.98F ), new SKPoint( 3, 1.05F ),
-				new SKPoint( 4, 5.5F), new SKPoint(5,6.11F), new SKPoint(6,6.55F) }
+				Values = new SKPoint[] { new SKPoint(0,0.0F),
+				new SKPoint( 2, 1.33F ), new SKPoint( 3, 1.55F ),
+				new SKPoint( 4, 5.5F), new SKPoint(5,6.11F), new SKPoint(6,8.55F) }
 			};
 
 			LineSeries l2 = new LineSeries()
@@ -60,6 +60,7 @@ namespace RayCharts.Views
 			};
 
 			List<LineSeries> s = new List<LineSeries>();
+			s.Add( l1 );
 			s.Add( l2 );
 
 			this.lineChartView.Series = s;

@@ -8,7 +8,7 @@
 
         <ray:ProgressMeter x:Name="pieChartView" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand"
 			PrimaryTextColor="White" SubTextColor="White" Style="{StaticResource TestStyle2}"
-			LayoutGrid="True" BackgroundColor="{StaticResource DarkGray}" 
+			LayoutGrid="False" BackgroundColor="{StaticResource DarkGray}" 
 			Padding="0" Value1="33" Value2="66" ArcLineWidth="20" ArcColor1="{StaticResource GreenColor1}"
 			ArcColor2="{StaticResource GreenColor2}" PrimeLabelAttributes="Bold">
 			<x:Arguments>
@@ -18,7 +18,7 @@
 
 		<ray:ProgressMeter x:Name="meterChartView" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand"
 			PrimaryTextColor="White" SubTextColor="White" Style="{StaticResource TestStyle2}"
-			LayoutGrid="True" BackgroundColor="{StaticResource DarkGray}" 
+			LayoutGrid="False" BackgroundColor="{StaticResource DarkGray}" 
 			Padding="0" ArcColor1="{StaticResource GreenColor1}"
 			ArcColor2="{StaticResource GreenColor2}" PrimeLabelAttributes="Bold" PrimeLabelFontScale="100.0"
 			ArcLineThickness="1">

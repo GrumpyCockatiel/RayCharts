@@ -18,17 +18,15 @@ namespace RayCharts.Views
 			base.OnAppearing();
 
 			//this.pieChartView.ArcLineWidth = Convert.ToSingle( this.pieChartView.Width / 15.0F );
+			this.pieChartView.PrimeLabel = "1ÁyE";
+			//this.pieChartView.PrimeLabelFontScale = 50.0F;
+			//this.pieChartView.SubLabel = "lesser";
 
-			//this.meterChartView.PrimeLabel = "Limy Áhm 222";
-			//this.meterChartView.SubLabel = "subby label";
-
-			this.meterChartView.Value1 = 0;
+			this.meterChartView.Value1 = 16;
 			this.meterChartView.Value2 = 12;
 			this.meterChartView.PrimeLabel = $"{this.meterChartView.Value1}/{this.meterChartView.Value2}";
-
-			//this.pieChartView.PrimeLabel = "1ÁyE";
-			//this.pieChartView.PrimeLabelFontScale = 50.0F;
-			int x = 5;
+			///this.meterChartView.PrimeLabel = "Limy Áhm 222";
+			this.meterChartView.SubLabel = "subby label";
 		}
 	}
 }
